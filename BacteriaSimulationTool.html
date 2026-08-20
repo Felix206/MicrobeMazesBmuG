@@ -1,0 +1,404 @@
+<p>BactSimulationTool Reference</p>
+<p>Module reference: SURE package</p>
+<div class="shell">
+<aside>
+<p class="brand-sub">44 classes, 5 sub-packages</p>
+<nav>
+<div class="group">
+<p class="group-label">Core Simulation</p>
+<ul>
+<li><a href="#bacterium">Bacterium</a></li>
+<li><a href="#bacteriumphysics">BacteriumPhysics</a></li>
+<li><a href="#bacteriumspecies">BacteriumSpecies</a></li>
+<li><a href="#bacteriumstate">BacteriumState</a></li>
+<li><a href="#forceengine">ForceEngine</a></li>
+<li><a href="#graphsearchphysics">GraphSearchPhysics</a></li>
+<li><a href="#simulationspeciesregistry">SimulationSpeciesRegistry</a></li>
+<li><a href="#randomnumbergenerator">RandomNumberGenerator</a></li>
+</ul>
+</div>
+<div class="group">
+<p class="group-label">Maze &amp; Grid</p>
+<ul>
+<li><a href="#maze">Maze</a></li>
+<li><a href="#pixel">Pixel</a></li>
+<li><a href="#foldedpixel">FoldedPixel</a></li>
+<li><a href="#mazefileloader">MazeFileLoader</a></li>
+<li><a href="#mazeimporter">MazeImporter</a></li>
+<li><a href="#mazeutils">MazeUtils</a></li>
+<li><a href="#mazemanager">MazeManager</a></li>
+<li><a href="#mazecontroller">MazeController</a></li>
+</ul>
+</div>
+<div class="group">
+<p class="group-label">Graph &amp; Skeleton</p>
+<ul>
+<li><a href="#skeletonanalyzer">SkeletonAnalyzer</a></li>
+<li><a href="#raggraphpanel">RAGGraphPanel</a></li>
+</ul>
+</div>
+<div class="group">
+<p class="group-label">Visualization &amp; UI</p>
+<ul>
+<li><a href="#infernocolormap">InfernoColorMap</a></li>
+<li><a href="#densitymappanel">DensityMapPanel</a></li>
+<li><a href="#overlappeddensitymappanel">OverlappedDensityMapPanel</a></li>
+<li><a href="#mazepanel">MazePanel</a></li>
+<li><a href="#buttoneditor">ButtonEditor / ButtonRenderer</a></li>
+<li><a href="#userguide">UserGuide</a></li>
+</ul>
+</div>
+<div class="group">
+<p class="group-label">Application Shell</p>
+<ul>
+<li><a href="#main">Main</a></li>
+<li><a href="#guipanel">GUIPanel / MainMazeButtonPanel</a></li>
+</ul>
+</div>
+<div class="group">
+<p class="group-label">Batch Processing</p>
+<ul>
+<li><a href="#batchsimulation">BatchSimulation</a></li>
+<li><a href="#batchcsvloader">BatchCSVLoader</a></li>
+<li><a href="#batchthreading">BatchThreading</a></li>
+<li><a href="#trajectorycsv">TrajectoryCsv</a></li>
+<li><a href="#simulationexportmanager">SimulationExportManager</a></li>
+<li><a href="#densityexporter">DensityExporter</a></li>
+<li><a href="#summaryexporter">SummaryExporter</a></li>
+<li><a href="#fastcsvtrajectoryexporter">FastCSVTrajectoryExporter</a></li>
+<li><a href="#trajectoryexporter">TrajectoryExporter</a></li>
+<li><a href="#duckdbexporter">DuckDBExporter</a></li>
+<li><a href="#mazeexporter">MazeExporter</a></li>
+<li><a href="#visitmatrixexporter">VisitMatrixExporter</a></li>
+<li><a href="#simulationexportmanageroriginal">SimulationExportManagerOriginal</a></li>
+</ul>
+</div>
+<div class="group">
+<p class="group-label">Overlap Processing</p>
+<ul>
+<li><a href="#overlapsimulationconfig">OverlapSimulationConfig</a></li>
+<li><a href="#overlapcsvloader">OverlapCSVLoader</a></li>
+<li><a href="#overlapcsvloaderoriginal">OverlapCSVLoaderOriginal</a></li>
+<li><a href="#overlappeddensitymappanelv2">OverlappedDensityMapPanelV2</a></li>
+</ul>
+</div>
+</nav></aside>
+<div class="cover">
+<h1 class="title">Bacterial Simulation Tool</h1>
+<p class="dek">A Swing application that walks stochastic and deterministic bacterium models through pixel-grid mazes, then turns their trajectories into density maps and region-adjacency graphs. This page documents every class in the <code class="inline">SURE</code> package tree; what it owns, what it talks to, and which paths are live versus legacy. It also discusses batch processing/threading,&nbsp;a useful&nbsp;feature for large projects and data mining!</p>
+<p class="dek">In total, there are&nbsp;44 classes,&nbsp;5&nbsp;sub-packages, 7 categories, and 9 movement models</p>
+</div>
+<!-- ============================================================ -->
+<section id="cat-core" class="category">
+<div class="category-head"><span class="category-num">01</span>
+<h2>Core Simulation Engine</h2>
+</div>
+<p class="category-note">The physics, state, and species machinery that make one bacterium move twice over, once at continuous sub-pixel resolution and once at discrete grid resolution.</p>
+<article id="bacterium" class="module">
+<div class="module-head">
+<h3 class="module-name">Bacterium</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>Acts as a wrapper for the state and physics of a single bacterium: initiating <code class="inline">BacteriumPhysics</code>, <code class="inline">BacteriumSpecies</code>, <code class="inline">BacteriumState</code> and <code class="inline">GraphSearchPhysics</code>. Takes in a target (row, column) pair in the maze during initialization and randomizes the subcell position.</p>
+<p>Refers to <a href="#simulationspeciesregistry"><code class="inline">SimulationSpeciesRegistry</code></a> for bacterial movement engines and decides whether <code class="inline">GraphSearchPhysics</code> or <code class="inline">BacteriumPhysics</code> should be used. GraphSearchPhysics and BacteriumPhysics operate in distinct resolutions (discrete versus continuous) &mdash; most control algorithms can't operate on a non-pixelated structure (pixel-graph-based solvers in particular), while Markov-chain decisions need the higher resolution for behaviors to be tuned (discretized values lead to too few meaningful outcomes).</p>
+<p>Applies move logic from either physics engine and addresses collision logic and directional weights of <code class="inline">BacteriumPhysics</code>, the class housing the stochastic bacterial model.</p>
+</article>
+<article id="bacteriumphysics" class="module">
+<div class="module-head">
+<h3 class="module-name">BacteriumPhysics</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>Sets directional weights and generates vector force directions. Bacterial orientation is derived from the current heading. Ray marching detects the distance from the bacteria to the wall: front, rear, left, and right (FRLR). These distances feed a force curve function (handled by <a href="#forceengine">ForceEngine</a>), and the sum of the resulting attractive vectors (scaled by force, oriented by FRLR) becomes the attractive force vector &mdash; unit vector <code class="inline">wallU[]</code> &mdash; later scaled again by <code class="inline">wWall</code>. This process runs at discrete subpixel resolution due to computational cost. <code class="inline">angleU[]</code> is sampled from an angleNoise-distribution offset of the current angle; <code class="inline">wMemory</code> is applied to the current heading. These values are accessed from<code class="inline">BacteriumState</code>, which stores the weights.</p>
+<p>After applying these values to the movement vector, the resulting trajectory is calculated. This displacement and endpoint are verified by <code class="inline">isReachable</code>. If true, the position change is recorded. If the path contains a collision, a correction slides along the wall based on the interaction angle, randomly, if the collision is a perfect head-on. The path is traversed and the trajectory saved.</p>
+</article>
+<article id="bacteriumspecies" class="module">
+<div class="module-head">
+<h3 class="module-name">BacteriumSpecies</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>Resolves the engine choice if using a bacterial physics engine, and makes decisions regarding the appearance of the graphical entry by importing values from the species registry. Holds a name, an engine string (<code class="inline">"weibull"</code> or <code class="inline">"mixed_gaussian"</code>, defaulting to Weibull), a <code class="inline">double[]</code> parameter set, and an AWT <code class="inline">Color</code>. <code class="inline">resolveEngine()</code> returns the matching <code class="inline">ForceEngine.WeibullEngine</code> or <code class="inline">ForceEngine.GaussianMixtureEngine</code> instance &mdash; the same class also backs the deterministic <a href="#graphsearchphysics">GraphSearchPhysics</a> solvers, which are registered as species with empty parameter arrays and a fixed color rather than a force curve.</p>
+</article>
+<article id="bacteriumstate" class="module">
+<div class="module-head">
+<h3 class="module-name">BacteriumState</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>The central processing hub for all bacterial statuses: bacterial trajectories (both pixel and subpixel resolution), angular heading, and the five tunable parameter inputs &mdash; <code class="inline">stdDev</code>, <code class="inline">noise</code>, <code class="inline">wWall</code>, <code class="inline">wMemory</code>, and <code class="inline">wNoise</code>. Also carries the logic for detecting exits and wall collisions.</p>
+</article>
+<article id="forceengine" class="module">
+<div class="module-head">
+<h3 class="module-name">ForceEngine</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>A stateless function called once per continuous step: it takes four local ray-cast distances and returns a force vector, with no concept of a visited set or the ability to backtrack. Handles both Weibull and mixed-Gaussian distributions, converting their parameters into a usable function and evaluating them at the current wall distances provided by ray marching (FRLR, as above). Weibull parameters are K, Lambda, Multiplier, and Baseline; mixed Gaussian are derived from Boltzmann force derivatives of position occupation and may take any number of 3-parameter Gaussian triples.</p>
+</article>
+<article id="graphsearchphysics" class="module">
+<div class="module-head">
+<h3 class="module-name">GraphSearchPhysics</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>Hosts movement logic for discrete grid-based maze solvers, alternatives to the&nbsp;continuous force-biased walk. Mutates the same package-private <code class="inline">BacteriumState</code> fields, one grid cell per tick, so a Bacterium running one of these looks and reports (trajectory/time/exited) just like a continuous-physics bacterium. These processes are deterministic: DFS/BFS-based algorithms need a persistent global state: a stack/queue of frontier cells and a visited grid that survives across many steps. Each model has a step function tied to its name:</p>
+<p class="dim"><em><strong>DFS:</strong>&nbsp;stack-based walk; backtracks one cell at a time on dead ends.</em><br /><em> <strong>BFS:</strong>&nbsp;queue-based frontier expansion; the rendered position jumps straight to whichever frontier cell is dequeued next, which isn't always adjacent to the previous cell (may appear to teleport when traced, a result of the tracing logic).</em><br /> <em><strong>ORGANIC_BFS:</strong>&nbsp;same BFS frontier order, but the agent is a single physical walker that cannot teleport; reaching the next frontier cell means physically retracing steps back to the branching point, then walking down to the target. Total tick count reflects real distance travelled, directly comparable to the bacteria's tick-by-tick walk.</em><br /><em> <strong>Shortest_Path:</strong>&nbsp;a BFS-based implementation that extracts the exact steps of the shortest walk to the exit.</em><br /><em> <strong>Longest_Path / DFS_full:</strong>&nbsp;a DFS-based implementation that ignores the exit to explore the entire maze; once complete, makes its way to the exit. The longest path a deterministic process should take.</em><br /><em> <strong>Naive_WALK:</strong>&nbsp;follows a randomly moving path; could technically live inside the bacterium physics engine, but is kept here to interoperate with the self-avoidant native walk, only implementable with memory structures.</em><br /><em> <strong>Persistent_Naive_WALK:</strong>&nbsp;random walk with an added likelihood of repeating the same directional step.</em><br /><em> <strong>Persistent_Naive_WALK_Wall_Follower:&nbsp;</strong>persistent random walk with an added likelihood of moving aligned toward a nearby wall (initially hypothesized as the minimum functionality of a bacterium; consistently the worst maze solver of all algorithms used in this project).</em><br /><em> <strong>Self_Avoidant_Naive_WALK:</strong>&nbsp;random walk with an added weight against re-visiting an already-visited pixel.</em></p>
+</article>
+<article id="simulationspeciesregistry" class="module">
+<div class="module-head">
+<h3 class="module-name">SimulationSpeciesRegistry</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>A static lookup table of every built-in <code class="inline">BacteriumSpecies</code> the GUI can offer, plus the fixed <code class="inline">Color[]</code> palette (red / blue / green / orange / magenta / cyan) those species render in. Holds two parallel entries per wet-lab strain &mdash; a <code class="inline">_weibull</code> variant (K, Lambda, Multiplier, Baseline) and a <code class="inline">_force</code> variant (a mixed-Gaussian parameter set) &mdash; for EC, PP, VF, VN, and MM, plus one <code class="inline">BacteriumSpecies</code> per <a href="#graphsearchphysics">GraphSearchPhysics</a> movement model (DFS, DFS_full_maze, BFS, organic_bfs, shortest_path, naive_walk, self_avoidant_naive_walk, persistent_naive_walk, persistent_naive_wall_follower), so the deterministic solvers appear in the same species picker as the stochastic force models. <code class="inline">Main</code> reads <code class="inline">SPECIES_LIST</code> to populate the species checkboxes and pre-fill their default parameters.</p>
+</article>
+<article id="randomnumbergenerator" class="module">
+<div class="module-head">
+<h3 class="module-name">RandomNumberGenerator</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>The single <code class="inline">Random</code> instance behind every stochastic decision in the simulation&nbsp; calling <code class="inline">setSeed(long)</code> makes an entire run reproducible. Exposes <code class="inline">getSubPixelOffset()</code> (uniform jitter in [-0.5, 0.5], used when a Bacterium randomizes its position inside its target subcell at construction), <code class="inline">getRandomPosition(int)</code> (uniform placement, legacy "RNG1"), and <code class="inline">getDisplacementNoise(double)</code> / <code class="inline">getAngleNoise(double)</code>&nbsp;both are rejection sampled Gaussians clipped to &plusmn;3&sigma; of the supplied range, backing <code class="inline">wNoise</code> displacement and angular heading jitter in BacteriumPhysics/BacteriumState. <code class="inline">getPositionNoise(double, int)</code> is marked in its own comment as legacy and effectively unused.</p>
+</article>
+</section>
+<!-- ============================================================ -->
+<section id="cat-maze" class="category">
+<div class="category-head"><span class="category-num">02</span>
+<h2>Maze &amp; Grid</h2>
+</div>
+<p class="category-note">The pixel grid itself, and every path that gets a wall/exit layout into or out of it, including bundled resources, custom CSVs, or hand-drawn images.</p>
+<article id="maze" class="module">
+<div class="module-head">
+<h3 class="module-name">Maze</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>Owns the <code class="inline">Pixel[][]</code> grid, the list of <code class="inline">Bacterium</code> populating it, and a <code class="inline">boundaryThickness</code> (default 2) that <code class="inline">BacteriumPhysics</code> uses to limit legal bacterium positions near the edge. The constructor fills every cell with a fresh <code class="inline">Pixel(r, c)</code>. Beyond simple wall/exit/count accessors, <code class="inline">getPixelsOnLine(r1, c1, r2, c2)</code> implements Bresenham's line algorithm to return every pixel a straight segment crosses &mdash; used for ray marching and trajectory rendering. <code class="inline">clearWalls()</code>, <code class="inline">clearExits()</code>, <code class="inline">clearDensity()</code>, and <code class="inline">clearBacteria()</code> each reset one dimension of state independently, which is what lets <a href="#batchthreading">BatchThreading</a> reuse a single Maze object across an entire CSV of runs without reconstructing the grid each time (unless the maze dimensions themselves change).</p>
+</article>
+<article id="pixel" class="module">
+<div class="module-head">
+<h3 class="module-name">Pixel</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>The atomic cell of <code class="inline">Maze.grid</code>. Carries its own (row, col), a wall flag, an exit flag, and a visit count incremented once per bacterium pass via <code class="inline">addCount()</code> &mdash; that count is exactly what <a href="#densitymappanel">DensityMapPanel</a> and <a href="#overlappeddensitymappanel">OverlappedDensityMapPanel</a> bucket into percentiles and colorize through <a href="#infernocolormap">InfernoColorMap</a>, and what <code class="inline">Maze.clearDensity()</code> zeroes via <code class="inline">resetCount()</code> between batch runs.</p>
+</article>
+<article id="foldedpixel" class="module">
+<div class="module-head">
+<h3 class="module-name">FoldedPixel</h3>
+<span class="pill pill-path">SURE</span><span class="pill pill-flag">UNUSED</span></div>
+<p>A two-field (<code class="inline">count</code>, <code class="inline">isWall</code>) value holder mirroring the subset of Pixel state a density renderer actually needs. Not instantiated anywhere in the current codebase &mdash; a stub left in place, presumably for a lighter-weight or serializable density snapshot that hasn't been wired up yet.</p>
+</article>
+<article id="mazefileloader" class="module">
+<div class="module-head">
+<h3 class="module-name">MazeFileLoader</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>The maze-parsing workhorse &mdash; loads a bundled <code class="inline">int[][]</code> maze either from the classpath (<code class="inline">loadMazeFromResource</code>, trying several lookup strategies to stay robust across IDE-run and packaged-jar execution, with and without a leading slash) or from an arbitrary filesystem path (<code class="inline">loadMazeFromFile</code>). Both funnel into <code class="inline">parseMazeStream</code>, which tries two parse modes in order: Mode A reads the file as literal Java-array source &mdash; stripping <code class="inline">//</code> comments and <code class="inline">int[][] name =</code> declarations, then reading brace-delimited <code class="inline">{1,0,1,...}</code> rows character-by-character; if no braces are found, Mode B falls back to a plain numeric matrix, stripping stray braces/semicolons and splitting each line on commas or whitespace. Either mode validates that every row has the same column count before returning, so a malformed maze file fails loudly rather than producing a ragged grid.</p>
+</article>
+<article id="mazeimporter" class="module">
+<div class="module-head">
+<h3 class="module-name">MazeImporter</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>Two static one-shot converters into the same <code class="inline">int[][]</code> (1 = wall, 0 = open) shape MazeFileLoader produces. <code class="inline">importFromCSV(File)</code> is a plain comma-split reader &mdash; no comment stripping or brace parsing, unlike MazeFileLoader. <code class="inline">importFromImage(File)</code> reads any ImageIO-supported raster and thresholds it to a wall/open grid by testing each pixel for exact opaque black (<code class="inline">0xFF000000</code>) &mdash; anything else, including anti-aliased edges or non-pure-black wall art, becomes open space. Used by <a href="#overlappeddensitymappanelv2">OverlappedDensityMapPanelV2</a> when a maze is supplied as <code class="inline">.csv</code> or as an image rather than one of the bundled <code class="inline">.txt</code> resources.</p>
+</article>
+<article id="mazeutils" class="module">
+<div class="module-head">
+<h3 class="module-name">MazeUtils</h3>
+<span class="pill pill-path">SURE</span><span class="pill pill-flag">LEGACY</span></div>
+<p>An earlier, narrower version of the array-style maze parser now living in <code class="inline">MazeFileLoader.loadMazeFromFile</code> &mdash; matches only <code class="inline">{...},</code> / <code class="inline">{...}</code> bracketed rows line-by-line, with no plain-text fallback, no classpath-resource lookup, and no comment stripping. Not called from anywhere in the current codebase; superseded by MazeFileLoader.</p>
+</article>
+<article id="mazemanager" class="module">
+<div class="module-head">
+<h3 class="module-name">MazeManager</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>A one-field holder (<code class="inline">Maze maze</code>) with a getter/setter, giving the rest of the simulation application a stable reference to swap the active <code class="inline">Maze</code> instance out from under UI components (<code class="inline">MazePanel.setMaze</code>, etc.) without those components needing to know a new Maze was constructed needed whenever a loaded maze's dimensions don't match the grid currently on screen.</p>
+</article>
+<article id="mazecontroller" class="module">
+<div class="module-head">
+<h3 class="module-name">MazeController</h3>
+<span class="pill pill-path">SURE.listeners</span></div>
+<p>The Swing-facing counterpart to MazeManager owns the behavior behind the four "load a maze" buttons (Plaza, Uniform, Non-Uniform, Custom CSV) plus Save Maze CSV. <code class="inline">loadPlazaMaze()</code> clears walls and rebuilds just the outer boundary in place; <code class="inline">loadUniformMaze()</code> / <code class="inline">loadNonUniformMaze()</code> clear walls and delegate to <code class="inline">MazeFileLoader.loadMazeFromResource()</code> against the bundled <code class="inline">mazes/</code> resources; <code class="inline">loadCustomMaze()</code> opens a JFileChooser, parses a binary CSV, and unlike the other three&nbsp; replaces the Maze object entirely, since a custom file's dimensions rarely match the current grid. <code class="inline">saveMaze()</code> writes the current wall layout back out as a 1/0 CSV. Every load path ends in <code class="inline">refresh()</code>, which clears MazePanel's cached visuals and repaints. Note that MazeController is due for significant maintainance.</p>
+</article>
+</section>
+<!-- ============================================================ -->
+<section id="cat-graph" class="category">
+<div class="category-head"><span class="category-num">03</span>
+<h2>Graph &amp; Skeleton Analysis</h2>
+</div>
+<p class="category-note">Collapses the per-pixel maze into a topological Region Adjacency Graph (specifically junctions and corridors treated as nodes and edges) for trajectory and shortest-path analysis.</p>
+<article id="skeletonanalyzer" class="module">
+<div class="module-head">
+<h3 class="module-name">SkeletonAnalyzer</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>Turns the raw wall/open Maze grid into a navigable topological graph, independent of and coarser than the per-pixel grid GraphSearchPhysics walks. <code class="inline">analyze()</code> runs a staged pipeline: <strong>(1)</strong> Zhang-Suen thinning reduces every open region to a 1 pixel wide skeleton; <strong>(2)</strong> each skeleton pixel gets a "degree" &mdash; not a raw 8-neighbor count, but the number of open&rarr;closed transitions walking clockwise around it, which lets an imperfectly-thinned junction still register the right branch count; <strong>(3)</strong> degree-0/1/3+ pixels are 8-connected-labeled into junction "blobs," while a wall-clearance BFS gives each blob a growth radius based on how wide the room or corridor around it is; <strong>(4)</strong> degree-2 pixels are labeled into edge components, with junctions acting as separators; <strong>(5)</strong> a weighted multi-source "Voronoi" BFS &mdash; junctions get a head start equal to their clearance radius, so wide rooms claim proportionally more territory &mdash; assigns every open pixel to its nearest junction (positive ID) or edge (negative ID) in <code class="inline">regionMap</code>; <strong>(6)</strong> <code class="inline">buildRAG()</code> scans adjacent regionMap cells to construct the Region Adjacency Graph.</p>
+<p>Beyond the pipeline: <code class="inline">deleteJunction(id)</code> lets the maze editor merge a junction back into its neighboring edges; <code class="inline">computeRegionTrajectory(Bacterium)</code> discretizes a bacterium's continuous trajectory into a de-duplicated sequence of region IDs, with <code class="inline">inferSkips()</code> patching in a shared junction when a walk appears to jump directly between two edges; and <code class="inline">shortestPath(src, dst)</code> runs a plain BFS over the RAG treating junctions and edges as one bipartite node set. <code class="inline">loadFromVoronoi(int[][])</code> can restore a previously computed regionMap without re-running thinning, at the cost of <code class="inline">getSkeleton()</code>/<code class="inline">getDegree()</code> returning null.</p>
+</article>
+<article id="raggraphpanel" class="module">
+<div class="module-head">
+<h3 class="module-name">RAGGraphPanel</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>Read-only Swing visualization of a SkeletonAnalyzer's Region Adjacency Graph, laid out at the exact same cell size and dimensions as the maze it overlays. Paints wall cells dark, tints each open pixel with its region's HSB-derived color at low alpha (a soft Voronoi wash), draws each edge as a line between the centroids of its two endpoint junctions &mdash; or to its own centroid if it dangles &mdash; and labels edges <code class="inline">"e{id}"</code> and junctions <code class="inline">"v{id}"</code>. <code class="inline">getToolTipText()</code> hit-tests the mouse against cached centroids to show a junction's connected edges or an edge's endpoints. Centroids come from <code class="inline">SkeletonAnalyzer.computeRegionCentroids()</code>, computed once and cached.</p>
+</article>
+</section>
+<!-- ============================================================ -->
+<section id="cat-viz" class="category">
+<div class="category-head"><span class="category-num">04</span>
+<h2>Visualization &amp; UI</h2>
+</div>
+<p class="category-note">The interactive maze canvas, its density-map readouts, and the small Swing widgets that stitch them into the Bacteria List table.</p>
+<article id="infernocolormap" class="module">
+<div class="module-head">
+<h3 class="module-name">InfernoColorMap</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>A grayscale-to-color LUT conversion matching FIJI's legacy "fire" color LUT, commonly used for visualizations of bacterial density. Used to create density maps in both the UI and for export.</p>
+</article>
+<article id="densitymappanel" class="module">
+<div class="module-head">
+<h3 class="module-name">DensityMapPanel</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>Renders Maze density as a heatmap, offscreen-renderable via <code class="inline">toImage()</code> (used by the batch export pipeline) as well as on-screen via <code class="inline">paintComponent()</code>. Colors are not scaled to the raw maximum count &mdash; <code class="inline">render()</code> sorts every pixel's count and colors relative to the 99th percentile, clamped to [0,1] and mapped through InfernoColorMap, so a handful of outlier hot cells can't wash out the rest of the map to a single flat color the way naive max-normalization would.</p>
+</article>
+<article id="overlappeddensitymappanel" class="module">
+<div class="module-head">
+<h3 class="module-name">OverlappedDensityMapPanel</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>The live, in-app "Show Overlapped Density Map" view, wired from Main's button of the same name same percentile-normalized InfernoColorMap rendering as DensityMapPanel, plus a drawn black cell border per pixel. Distinct from <a href="#overlappeddensitymappanelv2">overlap_processing.OverlappedDensityMapPanelV2</a>, which is the offline/batch counterpart driven by <code class="inline">overlap_simulations.csv</code> rather than the live-in-memory Maze.</p>
+</article>
+<article id="mazepanel" class="module">
+<div class="module-head">
+<h3 class="module-name">MazePanel</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>The largest UI surface in the app: Our interactive maze itself!&nbsp;Tracks six edit modes (<code class="inline">SELECT</code>, <code class="inline">WALL</code>, <code class="inline">EXIT</code>, <code class="inline">ERASE_WALL</code>, <code class="inline">REMEDY_VORONOI</code>, <code class="inline">DELETE_JUNCTION</code>) driven by mouse listeners, and&nbsp; five independent overlay toggles (skeleton, Voronoi regions, bacterium trajectories, shortest-path overlays, degree debug coloring) that all read from an externally-supplied <a href="#skeletonanalyzer">SkeletonAnalyzer</a> set via <code class="inline">setAnalyzer()</code>.</p>
+<p>Hover state drives both a floating <code class="inline">JWindow</code> info popup (cell row/col/wall/count, or region/junction/edge info once an analyzer is attached) and tooltip text; mouse clicks in WALL/EXIT/ERASE_WALL modes mutate the underlying Maze directly, while SELECT mode supports Shift-click multi-selection for batch "Set Exit" operations. Also owns per-bacterium trajectory hover/click hit-testing used to pop up a bacterium's path on demand.</p>
+</article>
+<article id="buttoneditor" class="module">
+<div class="module-head">
+<h3 class="module-name">ButtonEditor / ButtonRenderer</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>A matched JTable cell editor/renderer pair that puts a live "Show Trajectory" button inside the Bacteria List table. ButtonRenderer just paints the button; ButtonEditor looks up the clicked row's Bacterium via <code class="inline">Maze.getBacterium(row)</code> and opens a JFrame dumping that bacterium's full trajectory as text. Eventually, all the buttons should be moved into a single spot (here)!</p>
+</article>
+<article id="userguide" class="module">
+<div class="module-head">
+<h3 class="module-name">UserGuide</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>Not a class of logic; a<code class="inline">&nbsp;String TEXT</code> block used verbatim as the content of the in-app "?" help dialog. Walks through maze selection, maze interaction (hover / click / pin / Set Start / Set Exit / multi-exit), parameter and species selection, simulation controls, and the analysis tools (density map, overlapped density map, bacteria list). Note that it needs some work, especially with its legacy content!</p>
+</article>
+</section>
+<!-- ============================================================ -->
+<section id="cat-shell" class="category">
+<div class="category-head"><span class="category-num">05</span>
+<h2>Application Shell</h2>
+</div>
+<p class="category-note">Where everything above is instantiated and wired together into a single running program.</p>
+<article id="main" class="module">
+<div class="module-head">
+<h3 class="module-name">Main</h3>
+<span class="pill pill-path">SURE</span></div>
+<p>The application entry point and, in effect, the entire Swing wiring layer: one very large <code class="inline">main(String[] args)</code> that constructs the JFrame, every button (maze loading, edit-mode, batch / overlap-batch, species checkboxes, direction-weight fields, create/start simulation, density / overlapped-density / bacteria-list windows, grid toggle, clear), and every action listener connecting those buttons to Maze, MazeManager, MazePanel, MazeController, Bacterium/BacteriumSpecies, BatchThreading, and the export_import package. Also owns a handful of small static parsing helpers (<code class="inline">parseIntOrDefault</code>, <code class="inline">parseOrDefault</code> for both <code class="inline">double</code> and <code class="inline">double[]</code>) used to read numeric parameter fields defensively.&nbsp;Nearly all classes in the project are instantiated somewhere inside Main. There are a few notable string arguments, which can be used for running simulations through a jar. or live application through another program or from the command line. This is extremely useful when doing some data mining, but is unimportant to most users :).</p>
+</article>
+<article id="guipanel" class="module">
+<div class="module-head">
+<h3 class="module-name">GUIPanel / MainMazeButtonPanel</h3>
+<span class="pill pill-path">SURE</span><span class="pill pill-flag">STUB</span></div>
+<p>Empty class stubs package declaration and class body, no fields or methods. A bunch of unreferenced placeholders reserved for a future refactor that would pull Main's inline Swing construction out into dedicated panel classes.</p>
+</article>
+</section>
+<!-- ============================================================ -->
+<section id="cat-batch" class="category">
+<div class="category-head"><span class="category-num">06</span>
+<h2>Batch Processing</h2>
+</div>
+<p class="category-note"><code class="inline">SURE.batch_processing</code>&nbsp;runs every row of <code class="inline">simulations.csv</code> headlessly and exports each result to <code class="inline">batch_output/run_&lt;n&gt;/</code>. This is essential for all major simulations.</p>
+<article id="batchsimulation" class="module">
+<div class="module-head">
+<h3 class="module-name">BatchSimulation</h3>
+<span class="pill pill-path">batch_processing</span></div>
+<p>A plain data record for one row of a batch run: maze selection, species name, start (row, col), a semicolon/pipe-encoded exit list, timing (duration/dt/steps), movement parameters (velocity/stdDev/noise), direction weights (wMemory/wNoise/wWall), bacteria count, and the raw engine name plus pipe-delimited parameter array.&nbsp;It's quite short and sweet, being a constructor, but it is necessary to load items from simulations.csv.</p>
+</article>
+<article id="batchcsvloader" class="module">
+<div class="module-head">
+<h3 class="module-name">BatchCSVLoader</h3>
+<span class="pill pill-path">batch_processing</span></div>
+<p>Parses <code class="inline">simulations.csv</code> (header row skipped) into a <code class="inline">List&lt;BatchSimulation&gt;</code>, one row per line, comma-split into the 17 BatchSimulation fields with the parameters column further split on <code class="inline">|</code>. The maze-type column accepts <code class="inline">"plaza"</code>, <code class="inline">"uniform"</code>, <code class="inline">"nonuniform"</code>, or <code class="inline">"file:&lt;path&gt;"</code> for a custom maze (classpath resource or filesystem path, resolved later by MazeFileLoader).</p>
+</article>
+<article id="batchthreading" class="module">
+<div class="module-head">
+<h3 class="module-name">BatchThreading</h3>
+<span class="pill pill-path">batch_processing</span></div>
+<p>Runs every BatchSimulation from simulations.csv on a background Thread so the GUI stays responsive. For each row: resets the live Maze (walls/bacteria/density/exits), loads the requested maze type &mdash; resizing the Maze itself to match the loaded grid if it's a custom file &mdash; applies the encoded exits, builds one BacteriumSpecies directly from the CSV's engine and parameter columns (color chosen by a small hardcoded EC/PP/VF/VN/MM &rarr; color switch), spawns <code class="inline">bacteriaCount</code> Bacterium instances with that species and the CSV's direction weights, steps every non-exited bacterium for <code class="inline">duration/dt</code> (or <code class="inline">steps</code>, if duration isn't set) ticks, then calls <a href="#simulationexportmanager">SimulationExportManager.exportRun()</a>. <code class="inline">waitUntilFinished()</code> blocks the caller until the thread completes &mdash; used by the batch-overlap workflow, which needs batch trajectories on disk before it can visualize overlaps.</p>
+</article>
+<article id="trajectorycsv" class="module">
+<div class="module-head">
+<h3 class="module-name">TrajectoryCsv</h3>
+<span class="pill pill-path">batch_processing</span><span class="pill pill-flag">STUB</span></div>
+<p>Empty class stub package declaration and class body only. Currently unreferenced.</p>
+</article>
+<article id="simulationexportmanager" class="module">
+<div class="module-head">
+<h3 class="module-name">SimulationExportManager</h3>
+<span class="pill pill-path">export_import</span></div>
+<p>The current per-run export orchestrator, called once per batch simulation from BatchThreading. In sequence: DensityExporter (PNG), SummaryExporter (xlsx), FastCSVTrajectoryExporter (trajectory.csv &mdash; called twice in the current code, the second call redundant), MazeExporter (maze.json stub), then builds a fresh SkeletonAnalyzer for the maze and calls VisitMatrixExporter twice once across all bacteria, once <code class="inline">successfulOnly=true</code>. DuckDBExporter's Parquet export is wired in as a commented-out call and is not currently run. (Most users will never need chunk imaging, but we hope to eventually support it. The current implementation works, but is too slow for practical use.</p>
+</article>
+<article id="densityexporter" class="module">
+<div class="module-head">
+<h3 class="module-name">DensityExporter</h3>
+<span class="pill pill-path">export_import</span></div>
+<p>Renders a JComponent (typically a DensityMapPanel sized to the maze) to an offscreen BufferedImage via <code class="inline">printAll()</code> and writes it as <code class="inline">density.png</code>.</p>
+</article>
+<article id="summaryexporter" class="module">
+<div class="module-head">
+<h3 class="module-name">SummaryExporter</h3>
+<span class="pill pill-path">export_import</span></div>
+<p>Writes <code class="inline">summary.xlsx</code> via Apache POI's streaming <code class="inline">SXSSFWorkbook:</code>&nbsp;one row per bacterium with its index, total elapsed time, and trajectory point count.</p>
+</article>
+<article id="fastcsvtrajectoryexporter" class="module">
+<div class="module-head">
+<h3 class="module-name">FastCSVTrajectoryExporter</h3>
+<span class="pill pill-path">export_import</span></div>
+<p>The trajectory export actually used in the pipeline writes <code class="inline">trajectory.csv</code> as (bacterium_index, timestep, x, y) rows, buffering into a StringBuilder and flushing to a 16MB-buffered writer roughly every 1MB, to avoid excessive small writes across potentially very large trajectory sets.</p>
+</article>
+<article id="trajectoryexporter" class="module">
+<div class="module-head">
+<h3 class="module-name">TrajectoryExporter</h3>
+<span class="pill pill-path">export_import</span><span class="pill pill-flag">LEGACY</span></div>
+<p>An earlier trajectory CSV writer &mdash; one row per timestep, one quoted <code class="inline">"x,y"</code> cell per bacterium column, padded with empty cells for bacteria whose trajectory ended early &mdash; plus a Parquet stub that's entirely commented out. Not called from anywhere in the current pipeline; superseded by FastCSVTrajectoryExporter's per-row-per-bacterium layout.</p>
+</article>
+<article id="duckdbexporter" class="module">
+<div class="module-head">
+<h3 class="module-name">DuckDBExporter</h3>
+<span class="pill pill-path">export_import</span><span class="pill pill-flag">DISABLED</span></div>
+<p>Writes every bacterium's trajectory to Parquet by spinning up an in-memory DuckDB connection, batch-inserting into a <code class="inline">traj(bacterium_id, t, x, y)</code> table, then running <code class="inline">COPY traj TO '&lt;path&gt;' (FORMAT PARQUET)</code>. Currently disabled &mdash; its one call site in SimulationExportManager is commented out &mdash; in favor of the plain-CSV path.</p>
+</article>
+<article id="mazeexporter" class="module">
+<div class="module-head">
+<h3 class="module-name">MazeExporter</h3>
+<span class="pill pill-path">export_import</span><span class="pill pill-flag">STUB</span></div>
+<p><code class="inline">exportMazeJson()</code>&nbsp;Currently, it only prints "add JSON here later" and writes nothing. We hope to support this in the future to allow maze simulations to be paused and restarted, but it is not a priority for now :,( .</p>
+</article>
+<article id="visitmatrixexporter" class="module">
+<div class="module-head">
+<h3 class="module-name">VisitMatrixExporter</h3>
+<span class="pill pill-path">export_import</span></div>
+<p>Writes a CSV: one row per bacterium, one column per junction vertex the analyzer's RAG produced counting how many times each bacterium's region-level trajectory (via <code class="inline">SkeletonAnalyzer.computeRegionTrajectory</code>, junction IDs only) visited each vertex. The <code class="inline">successfulOnly</code> flag restricts rows to bacteria that reached an exit; if none did under that filter, no file is written at all, so the "successful visit matrix" variant never emits an all-zero or empty CSV.</p>
+</article>
+<article id="simulationexportmanageroriginal" class="module">
+<div class="module-head">
+<h3 class="module-name">SimulationExportManagerOriginal</h3>
+<span class="pill pill-path">export_import</span><span class="pill pill-flag">LEGACY</span></div>
+<p>An earlier version of SimulationExportManager same PNG / xlsx / CSV export sequence, without the SkeletonAnalyzer or visit-matrix step, importing <code class="inline">XSSFWorkbook</code> and <code class="inline">ImageIO</code> directly rather than delegating to the split-out exporter classes. Not called from anywhere in the current codebase (it's too slow), but we still hope to support it eventually, since Excel is much more user-friendly!</p>
+</article>
+</section>
+<!-- ============================================================ -->
+<section id="cat-overlap" class="category">
+<div class="category-head"><span class="category-num">07</span>
+<h2>Overlap Processing</h2>
+</div>
+<p class="category-note"><code class="inline">SURE.overlap_processing:</code>&nbsp;the offline counterpart to the in-app overlapped density view, driven by <code class="inline">overlap_simulations.csv</code> against trajectory CSVs already on disk.</p>
+<article id="overlapsimulationconfig" class="module">
+<div class="module-head">
+<h3 class="module-name">OverlapSimulationConfig</h3>
+<span class="pill pill-path">overlap_processing</span></div>
+<p>A three-field record (maze file, pixel size, list of trajectory CSV files) describing one row of an overlap-comparison batch. Two near-identical classes share this name &mdash; the top-level <code class="inline">SURE.overlap_processing.OverlapSimulationConfig</code> and an inner static class of the same name nested inside OverlapCSVLoader; both hold the same three fields, and <code class="inline">OverlapCSVLoader.loadCSV()</code> constructs and returns its own nested variant rather than the top-level one.</p>
+</article>
+<article id="overlapcsvloader" class="module">
+<div class="module-head">
+<h3 class="module-name">OverlapCSVLoader</h3>
+<span class="pill pill-path">overlap_processing</span></div>
+<p>Parses <code class="inline">overlap_simulations.csv</code> (<code class="inline">mazeFile,pixelSize,csvFile1;csvFile2;...</code>) and, for each row, constructs an OverlappedDensityMapPanelV2, forces it through a manual Swing layout/paint cycle (<code class="inline">setSize</code> + <code class="inline">doLayout</code> + <code class="inline">printAll</code> onto a BufferedImage &mdash; the panel is never actually added to a visible frame), and writes the composited result as a PNG into <code class="inline">batch_overlap_output_folder/</code>, named from the maze filename and every trajectory-CSV filename it overlaid. <code class="inline">runBatchOverlap()</code> is the entry point wired to Main's "Batch Overlap" button.</p>
+</article>
+<article id="overlapcsvloaderoriginal" class="module">
+<div class="module-head">
+<h3 class="module-name">OverlapCSVLoaderOriginal</h3>
+<span class="pill pill-path">overlap_processing</span><span class="pill pill-flag">LEGACY</span></div>
+<p>An earlier version of OverlapCSVLoader, same CSV format and PNG-export approach. Not called from anywhere in the current codebase; superseded by OverlapCSVLoader, which works with true CSVs instead of Excel Sheets.</p>
+</article>
+<article id="overlappeddensitymappanelv2" class="module">
+<div class="module-head">
+<h3 class="module-name">OverlappedDensityMapPanelV2</h3>
+<span class="pill pill-path">overlap_processing</span></div>
+<p>A DensityMapPanel subclass built entirely inside its constructor's <code class="inline">buildMaze()</code> static helper: loads a maze from a <code class="inline">.txt</code> (matched against the three bundled resource names), <code class="inline">.csv</code> (via <code class="inline">MazeImporter.importFromCSV</code>), or image file (via <code class="inline">MazeImporter.importFromImage</code>), builds a fresh Maze/MazeManager sized to it, paints in the walls, then re-reads every supplied trajectory CSV &mdash; expecting <code class="inline">bacteria,timestep,row,column</code> columns &mdash; rounding each (row, column) to the nearest pixel and calling <code class="inline">addCount()</code> on it. The resulting maze, with density baked into its Pixel counts, is handed to the parent DensityMapPanel's percentile-normalized InfernoColorMap renderer. This is the batch/offline counterpart to the live <a href="#overlappeddensitymappanel">OverlappedDensityMapPanel</a>.</p>
+</article>
+</section>
+<footer>Documentation of&nbsp;<code class="inline">src/main/java/SURE</code>&nbsp;from 2026-08-19. STUB marks an empty placeholder class; LEGACY marks a superseded class with no remaining call sites; DISABLED marks working code whose call site is currently commented out. Text to HTML conversion was done using&nbsp;https://text-html.com/.</footer></div>
