@@ -335,7 +335,7 @@
         <p>Refers to <a href="#simulationspeciesregistry"><code>SimulationSpeciesRegistry</code></a> for bacterial
           movement engines and decides whether <code>GraphSearchPhysics</code> or <code>BacteriumPhysics</code>
           should be used. GraphSearchPhysics and BacteriumPhysics operate in distinct resolutions (discrete versus
-          continuous) &mdash; most control algorithms can't operate on a non-pixelated structure (pixel-graph-based
+          continuous): most control algorithms can't operate on a non-pixelated structure (pixel-graph-based
           solvers in particular), while Markov-chain decisions need the higher resolution for behaviors to be tuned
           (discretized values lead to too few meaningful outcomes).</p>
         <p>Applies move logic from either physics engine and addresses collision logic and directional weights of
@@ -348,7 +348,7 @@
           current heading. Ray marching detects the distance from the bacteria to the wall: front, rear, left, and
           right (FRLR). These distances feed a force curve function (handled by <a href="#forceengine">ForceEngine</a>),
           and the sum of the resulting attractive vectors (scaled by force, oriented by FRLR) becomes the attractive
-          force vector &mdash; unit vector <code>wallU[]</code> &mdash; later scaled again by <code>wWall</code>. This
+          force vector (unit vector <code>wallU[]</code>), later scaled again by <code>wWall</code>. This
           process runs at discrete subpixel resolution due to computational cost. <code>angleU[]</code> is sampled
           from an angleNoise-distribution offset of the current angle; <code>wMemory</code> is applied to the current
           heading. These values are accessed from <code>BacteriumState</code>, which stores the weights.</p>
@@ -364,8 +364,8 @@
           appearance of the graphical entry by importing values from the species registry. Holds a name, an engine
           string (<code>"weibull"</code> or <code>"mixed_gaussian"</code>, defaulting to Weibull), a
           <code>double[]</code> parameter set, and an AWT <code>Color</code>. <code>resolveEngine()</code> returns the
-          matching <code>ForceEngine.WeibullEngine</code> or <code>ForceEngine.GaussianMixtureEngine</code> instance
-          &mdash; the same class also backs the deterministic <a href="#graphsearchphysics">GraphSearchPhysics</a>
+          matching <code>ForceEngine.WeibullEngine</code> or <code>ForceEngine.GaussianMixtureEngine</code> instance.
+          The same class also backs the deterministic <a href="#graphsearchphysics">GraphSearchPhysics</a>
           solvers, which are registered as species with empty parameter arrays and a fixed color rather than a force
           curve.</p>
       </article>
@@ -373,7 +373,7 @@
       <article id="bacteriumstate">
         <div class="module-head"><h3>BacteriumState</h3><span class="tag">SURE</span></div>
         <p>The central processing hub for all bacterial statuses: bacterial trajectories (both pixel and subpixel
-          resolution), angular heading, and the five tunable parameter inputs &mdash; <code>stdDev</code>,
+          resolution), angular heading, and the five tunable parameter inputs: <code>stdDev</code>,
           <code>noise</code>, <code>wWall</code>, <code>wMemory</code>, and <code>wNoise</code>. Also carries the
           logic for detecting exits and wall collisions.</p>
       </article>
@@ -427,8 +427,8 @@
         <div class="module-head"><h3>SimulationSpeciesRegistry</h3><span class="tag">SURE</span></div>
         <p>A static lookup table of every built-in <code>BacteriumSpecies</code> the GUI can offer, plus the fixed
           <code>Color[]</code> palette (red / blue / green / orange / magenta / cyan) those species render in. Holds
-          two parallel entries per wet-lab strain &mdash; a <code>_weibull</code> variant (K, Lambda, Multiplier,
-          Baseline) and a <code>_force</code> variant (a mixed-Gaussian parameter set) &mdash; for EC, PP, VF, VN, and
+          two parallel entries per wet-lab strain, a <code>_weibull</code> variant (K, Lambda, Multiplier,
+          Baseline) and a <code>_force</code> variant (a mixed-Gaussian parameter set), for EC, PP, VF, VN, and
           MM, plus one <code>BacteriumSpecies</code> per <a href="#graphsearchphysics">GraphSearchPhysics</a> movement
           model (DFS, DFS_full_maze, BFS, organic_bfs, shortest_path, naive_walk, self_avoidant_naive_walk,
           persistent_naive_walk, persistent_naive_wall_follower), so the deterministic solvers appear in the same
@@ -438,11 +438,11 @@
 
       <article id="randomnumbergenerator">
         <div class="module-head"><h3>RandomNumberGenerator</h3><span class="tag">SURE</span></div>
-        <p>The single <code>Random</code> instance behind every stochastic decision in the simulation &mdash; calling
+        <p>The single <code>Random</code> instance behind every stochastic decision in the simulation: calling
           <code>setSeed(long)</code> makes an entire run reproducible. Exposes <code>getSubPixelOffset()</code>
           (uniform jitter in [-0.5, 0.5], used when a Bacterium randomizes its position inside its target subcell at
           construction), <code>getRandomPosition(int)</code> (uniform placement, legacy "RNG1"), and
-          <code>getDisplacementNoise(double)</code> / <code>getAngleNoise(double)</code> &mdash; both are rejection
+          <code>getDisplacementNoise(double)</code> / <code>getAngleNoise(double)</code>. Both are rejection
           sampled Gaussians clipped to &plusmn;3&sigma; of the supplied range, backing <code>wNoise</code>
           displacement and angular heading jitter in BacteriumPhysics/BacteriumState. <code>getPositionNoise(double,
           int)</code> is marked in its own comment as legacy and effectively unused.</p>
@@ -461,7 +461,7 @@
           <code>boundaryThickness</code> (default 2) that <code>BacteriumPhysics</code> uses to limit legal
           bacterium positions near the edge. The constructor fills every cell with a fresh <code>Pixel(r, c)</code>.
           Beyond simple wall/exit/count accessors, <code>getPixelsOnLine(r1, c1, r2, c2)</code> implements
-          Bresenham's line algorithm to return every pixel a straight segment crosses &mdash; used for ray marching
+          Bresenham's line algorithm to return every pixel a straight segment crosses, used for ray marching
           and trajectory rendering. <code>clearWalls()</code>, <code>clearExits()</code>, <code>clearDensity()</code>,
           and <code>clearBacteria()</code> each reset one dimension of state independently, which is what lets
           <a href="#batchthreading">BatchThreading</a> reuse a single Maze object across an entire CSV of runs
@@ -471,7 +471,7 @@
       <article id="pixel">
         <div class="module-head"><h3>Pixel</h3><span class="tag">SURE</span></div>
         <p>The atomic cell of <code>Maze.grid</code>. Carries its own (row, col), a wall flag, an exit flag, and a
-          visit count incremented once per bacterium pass via <code>addCount()</code> &mdash; that count is exactly
+          visit count incremented once per bacterium pass via <code>addCount()</code>; that count is exactly
           what <a href="#densitymappanel">DensityMapPanel</a> and
           <a href="#overlappeddensitymappanel">OverlappedDensityMapPanel</a> bucket into percentiles and colorize
           through <a href="#infernocolormap">InfernoColorMap</a>, and what <code>Maze.clearDensity()</code> zeroes
@@ -481,17 +481,17 @@
       <article id="foldedpixel">
         <div class="module-head"><h3>FoldedPixel</h3><span class="tag">SURE</span><span class="flag">UNUSED</span></div>
         <p>A two-field (<code>count</code>, <code>isWall</code>) value holder mirroring the subset of Pixel state a
-          density renderer actually needs. Not instantiated anywhere in the current codebase &mdash; a stub left in
+          density renderer actually needs. Not instantiated anywhere in the current codebase: a stub left in
           place, presumably for a lighter-weight or serializable density snapshot that hasn't been wired up yet.</p>
       </article>
 
       <article id="mazefileloader">
         <div class="module-head"><h3>MazeFileLoader</h3><span class="tag">SURE</span></div>
-        <p>The maze-parsing workhorse &mdash; loads a bundled <code>int[][]</code> maze either from the classpath
+        <p>The maze-parsing workhorse: loads a bundled <code>int[][]</code> maze either from the classpath
           (<code>loadMazeFromResource</code>, trying several lookup strategies to stay robust across IDE-run and
           packaged-jar execution, with and without a leading slash) or from an arbitrary filesystem path
           (<code>loadMazeFromFile</code>). Both funnel into <code>parseMazeStream</code>, which tries two parse modes
-          in order: Mode A reads the file as literal Java-array source &mdash; stripping <code>//</code> comments and
+          in order: Mode A reads the file as literal Java-array source, stripping <code>//</code> comments and
           <code>int[][] name =</code> declarations, then reading brace-delimited <code>{1,0,1,...}</code> rows
           character-by-character; if no braces are found, Mode B falls back to a plain numeric matrix, stripping
           stray braces/semicolons and splitting each line on commas or whitespace. Either mode validates that every
@@ -502,10 +502,10 @@
       <article id="mazeimporter">
         <div class="module-head"><h3>MazeImporter</h3><span class="tag">SURE</span></div>
         <p>Two static one-shot converters into the same <code>int[][]</code> (1 = wall, 0 = open) shape
-          MazeFileLoader produces. <code>importFromCSV(File)</code> is a plain comma-split reader &mdash; no comment
+          MazeFileLoader produces. <code>importFromCSV(File)</code> is a plain comma-split reader, with no comment
           stripping or brace parsing, unlike MazeFileLoader. <code>importFromImage(File)</code> reads any
           ImageIO-supported raster and thresholds it to a wall/open grid by testing each pixel for exact opaque black
-          (<code>0xFF000000</code>) &mdash; anything else, including anti-aliased edges or non-pure-black wall art,
+          (<code>0xFF000000</code>); anything else, including anti-aliased edges or non-pure-black wall art,
           becomes open space. Used by <a href="#overlappeddensitymappanelv2">OverlappedDensityMapPanelV2</a> when a
           maze is supplied as <code>.csv</code> or as an image rather than one of the bundled <code>.txt</code>
           resources.</p>
@@ -514,7 +514,7 @@
       <article id="mazeutils">
         <div class="module-head"><h3>MazeUtils</h3><span class="tag">SURE</span><span class="flag">LEGACY</span></div>
         <p>An earlier, narrower version of the array-style maze parser now living in
-          <code>MazeFileLoader.loadMazeFromFile</code> &mdash; matches only <code>{...},</code> / <code>{...}</code>
+          <code>MazeFileLoader.loadMazeFromFile</code>: it matches only <code>{...},</code> / <code>{...}</code>
           bracketed rows line-by-line, with no plain-text fallback, no classpath-resource lookup, and no comment
           stripping. Not called from anywhere in the current codebase; superseded by MazeFileLoader.</p>
       </article>
@@ -523,13 +523,13 @@
         <div class="module-head"><h3>MazeManager</h3><span class="tag">SURE</span></div>
         <p>A one-field holder (<code>Maze maze</code>) with a getter/setter, giving the rest of the simulation
           application a stable reference to swap the active <code>Maze</code> instance out from under UI components
-          (<code>MazePanel.setMaze</code>, etc.) without those components needing to know a new Maze was constructed
-          &mdash; needed whenever a loaded maze's dimensions don't match the grid currently on screen.</p>
+          (<code>MazePanel.setMaze</code>, etc.) without those components needing to know a new Maze was constructed.
+          This matters whenever a loaded maze's dimensions don't match the grid currently on screen.</p>
       </article>
 
       <article id="mazecontroller">
         <div class="module-head"><h3>MazeController</h3><span class="tag">SURE.listeners</span></div>
-        <p>The Swing-facing counterpart to MazeManager &mdash; owns the behavior behind the four "load a maze"
+        <p>The Swing-facing counterpart to MazeManager: it owns the behavior behind the four "load a maze"
           buttons (Plaza, Uniform, Non-Uniform, Custom CSV) plus Save Maze CSV. <code>loadPlazaMaze()</code> clears
           walls and rebuilds just the outer boundary in place; <code>loadUniformMaze()</code> /
           <code>loadNonUniformMaze()</code> clear walls and delegate to
@@ -553,13 +553,13 @@
         <p>Turns the raw wall/open Maze grid into a navigable topological graph, independent of and coarser than the
           per-pixel grid GraphSearchPhysics walks. <code>analyze()</code> runs a staged pipeline: <strong>(1)</strong>
           Zhang-Suen thinning reduces every open region to a 1-pixel-wide skeleton; <strong>(2)</strong> each skeleton
-          pixel gets a "degree" &mdash; not a raw 8-neighbor count, but the number of open&rarr;closed transitions
+          pixel gets a "degree", not a raw 8-neighbor count but the number of open&rarr;closed transitions
           walking clockwise around it, which lets an imperfectly-thinned junction still register the right branch
           count; <strong>(3)</strong> degree-0/1/3+ pixels are 8-connected-labeled into junction "blobs," while a
           wall-clearance BFS gives each blob a growth radius based on how wide the room or corridor around it is;
           <strong>(4)</strong> degree-2 pixels are labeled into edge components, with junctions acting as separators;
-          <strong>(5)</strong> a weighted multi-source "Voronoi" BFS &mdash; junctions get a head start equal to
-          their clearance radius, so wide rooms claim proportionally more territory &mdash; assigns every open pixel
+          <strong>(5)</strong> a weighted multi-source "Voronoi" BFS (junctions get a head start equal to
+          their clearance radius, so wide rooms claim proportionally more territory) assigns every open pixel
           to its nearest junction (positive ID) or edge (negative ID) in <code>regionMap</code>; <strong>(6)</strong>
           <code>buildRAG()</code> scans adjacent regionMap cells to construct the Region Adjacency Graph.</p>
         <p>Beyond the pipeline: <code>deleteJunction(id)</code> lets the maze editor merge a junction back into its
@@ -576,7 +576,7 @@
         <p>Read-only Swing visualization of a SkeletonAnalyzer's Region Adjacency Graph, laid out at the exact same
           cell size and dimensions as the maze it overlays. Paints wall cells dark, tints each open pixel with its
           region's HSB-derived color at low alpha (a soft Voronoi wash), draws each edge as a line between the
-          centroids of its two endpoint junctions &mdash; or to its own centroid if it dangles &mdash; and labels
+          centroids of its two endpoint junctions (or to its own centroid if it dangles), and labels
           edges <code>"e{id}"</code> and junctions <code>"v{id}"</code>. <code>getToolTipText()</code> hit-tests the
           mouse against cached centroids to show a junction's connected edges or an edge's endpoints. Centroids come
           from <code>SkeletonAnalyzer.computeRegionCentroids()</code>, computed once and cached.</p>
@@ -599,14 +599,14 @@
         <div class="module-head"><h3>DensityMapPanel</h3><span class="tag">SURE</span></div>
         <p>Renders Maze density as a heatmap, offscreen-renderable via <code>toImage()</code> (used by the batch
           export pipeline) as well as on-screen via <code>paintComponent()</code>. Colors are not scaled to the raw
-          maximum count &mdash; <code>render()</code> sorts every pixel's count and colors relative to the 99th
+          maximum count: <code>render()</code> sorts every pixel's count and colors relative to the 99th
           percentile, clamped to [0,1] and mapped through InfernoColorMap, so a handful of outlier hot cells can't
           wash out the rest of the map to a single flat color the way naive max-normalization would.</p>
       </article>
 
       <article id="overlappeddensitymappanel">
         <div class="module-head"><h3>OverlappedDensityMapPanel</h3><span class="tag">SURE</span></div>
-        <p>The live, in-app "Show Overlapped Density Map" view, wired from Main's button of the same name &mdash;
+        <p>The live, in-app "Show Overlapped Density Map" view, wired from Main's button of the same name, using the
           same percentile-normalized InfernoColorMap rendering as DensityMapPanel, plus a drawn black cell border
           per pixel. Distinct from
           <a href="#overlappeddensitymappanelv2">overlap_processing.OverlappedDensityMapPanelV2</a>, which is the
@@ -703,14 +703,14 @@
       <article id="batchthreading">
         <div class="module-head"><h3>BatchThreading</h3><span class="tag">batch_processing</span></div>
         <p>Runs every BatchSimulation from simulations.csv on a background Thread so the GUI stays responsive. For
-          each row: resets the live Maze (walls/bacteria/density/exits), loads the requested maze type &mdash;
-          resizing the Maze itself to match the loaded grid if it's a custom file &mdash; applies the encoded exits,
+          each row: resets the live Maze (walls/bacteria/density/exits), loads the requested maze type
+          (resizing the Maze itself to match the loaded grid if it's a custom file), applies the encoded exits,
           builds one BacteriumSpecies directly from the CSV's engine and parameter columns (color chosen by a small
           hardcoded EC/PP/VF/VN/MM &rarr; color switch), spawns <code>bacteriaCount</code> Bacterium instances with
           that species and the CSV's direction weights, steps every non-exited bacterium for
           <code>duration/dt</code> (or <code>steps</code>, if duration isn't set) ticks, then calls
           <a href="#simulationexportmanager">SimulationExportManager.exportRun()</a>.
-          <code>waitUntilFinished()</code> blocks the caller until the thread completes &mdash; used by the
+          <code>waitUntilFinished()</code> blocks the caller until the thread completes. This is used by the
           batch-overlap workflow, which needs batch trajectories on disk before it can visualize overlaps.</p>
       </article>
 
@@ -722,10 +722,10 @@
       <article id="simulationexportmanager">
         <div class="module-head"><h3>SimulationExportManager</h3><span class="tag">export_import</span></div>
         <p>The current per-run export orchestrator, called once per batch simulation from BatchThreading. In
-          sequence: DensityExporter (PNG), SummaryExporter (xlsx), FastCSVTrajectoryExporter (trajectory.csv &mdash;
-          called twice in the current code, the second call redundant), MazeExporter (maze.json stub), then builds a
-          fresh SkeletonAnalyzer for the maze and calls VisitMatrixExporter twice &mdash; once across all bacteria,
-          once <code>successfulOnly=true</code>. DuckDBExporter's Parquet export is wired in as a commented-out call
+          sequence: DensityExporter (PNG), SummaryExporter (xlsx), FastCSVTrajectoryExporter (trajectory.csv,
+          called twice in the current code; the second call is redundant), MazeExporter (maze.json stub), then builds
+          a fresh SkeletonAnalyzer for the maze and calls VisitMatrixExporter twice: once across all bacteria,
+          once with <code>successfulOnly=true</code>. DuckDBExporter's Parquet export is wired in as a commented-out call
           and is not currently run. (Most users will never need chunk imaging, but we hope to eventually support it.
           The current implementation works, but is too slow for practical use.)</p>
       </article>
@@ -751,8 +751,8 @@
 
       <article id="trajectoryexporter">
         <div class="module-head"><h3>TrajectoryExporter</h3><span class="tag">export_import</span><span class="flag">LEGACY</span></div>
-        <p>An earlier trajectory CSV writer &mdash; one row per timestep, one quoted <code>"x,y"</code> cell per
-          bacterium column, padded with empty cells for bacteria whose trajectory ended early &mdash; plus a Parquet
+        <p>An earlier trajectory CSV writer (one row per timestep, one quoted <code>"x,y"</code> cell per
+          bacterium column, padded with empty cells for bacteria whose trajectory ended early), plus a Parquet
           stub that's entirely commented out. Not called from anywhere in the current pipeline; superseded by
           FastCSVTrajectoryExporter's per-row-per-bacterium layout.</p>
       </article>
@@ -761,8 +761,8 @@
         <div class="module-head"><h3>DuckDBExporter</h3><span class="tag">export_import</span><span class="flag">DISABLED</span></div>
         <p>Writes every bacterium's trajectory to Parquet by spinning up an in-memory DuckDB connection,
           batch-inserting into a <code>traj(bacterium_id, t, x, y)</code> table, then running
-          <code>COPY traj TO '&lt;path&gt;' (FORMAT PARQUET)</code>. Currently disabled &mdash; its one call site in
-          SimulationExportManager is commented out &mdash; in favor of the plain-CSV path.</p>
+          <code>COPY traj TO '&lt;path&gt;' (FORMAT PARQUET)</code>. Currently disabled (its one call site in
+          SimulationExportManager is commented out) in favor of the plain-CSV path.</p>
       </article>
 
       <article id="mazeexporter">
@@ -784,7 +784,7 @@
 
       <article id="simulationexportmanageroriginal">
         <div class="module-head"><h3>SimulationExportManagerOriginal</h3><span class="tag">export_import</span><span class="flag">LEGACY</span></div>
-        <p>An earlier version of SimulationExportManager &mdash; same PNG / xlsx / CSV export sequence, without the
+        <p>An earlier version of SimulationExportManager: the same PNG / xlsx / CSV export sequence, without the
           SkeletonAnalyzer or visit-matrix step, importing <code>XSSFWorkbook</code> and <code>ImageIO</code>
           directly rather than delegating to the split-out exporter classes. Not called from anywhere in the current
           codebase (it's too slow), but we still hope to support it eventually, since Excel is much more
@@ -801,7 +801,7 @@
       <article id="overlapsimulationconfig">
         <div class="module-head"><h3>OverlapSimulationConfig</h3><span class="tag">overlap_processing</span></div>
         <p>A three-field record (maze file, pixel size, list of trajectory CSV files) describing one row of an
-          overlap-comparison batch. Two near-identical classes share this name &mdash; the top-level
+          overlap-comparison batch. Two near-identical classes share this name: the top-level
           <code>SURE.overlap_processing.OverlapSimulationConfig</code> and an inner static class of the same name
           nested inside OverlapCSVLoader; both hold the same three fields, and
           <code>OverlapCSVLoader.loadCSV()</code> constructs and returns its own nested variant rather than the
@@ -813,7 +813,7 @@
         <p>Parses <code>overlap_simulations.csv</code>
           (<code>mazeFile,pixelSize,csvFile1;csvFile2;...</code>) and, for each row, constructs an
           OverlappedDensityMapPanelV2, forces it through a manual Swing layout/paint cycle (<code>setSize</code> +
-          <code>doLayout</code> + <code>printAll</code> onto a BufferedImage &mdash; the panel is never actually
+          <code>doLayout</code> + <code>printAll</code> onto a BufferedImage; the panel is never actually
           added to a visible frame), and writes the composited result as a PNG into
           <code>batch_overlap_output_folder/</code>, named from the maze filename and every trajectory-CSV filename
           it overlaid. <code>runBatchOverlap()</code> is the entry point wired to Main's "Batch Overlap" button.</p>
@@ -832,8 +832,8 @@
           loads a maze from a <code>.txt</code> (matched against the three bundled resource names),
           <code>.csv</code> (via <code>MazeImporter.importFromCSV</code>), or image file (via
           <code>MazeImporter.importFromImage</code>), builds a fresh Maze/MazeManager sized to it, paints in the
-          walls, then re-reads every supplied trajectory CSV &mdash; expecting
-          <code>bacteria,timestep,row,column</code> columns &mdash; rounding each (row, column) to the nearest pixel
+          walls, then re-reads every supplied trajectory CSV (expecting
+          <code>bacteria,timestep,row,column</code> columns), rounding each (row, column) to the nearest pixel
           and calling <code>addCount()</code> on it. The resulting maze, with density baked into its Pixel counts,
           is handed to the parent DensityMapPanel's percentile-normalized InfernoColorMap renderer. This is the
           batch/offline counterpart to the live <a href="#overlappeddensitymappanel">OverlappedDensityMapPanel</a>.</p>
