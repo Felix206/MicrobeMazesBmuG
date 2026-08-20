@@ -164,6 +164,29 @@
 
   p.note { color: var(--muted); max-width: 78ch; margin: 0 0 26px; }
 
+  .param-list {
+    margin: 0 0 16px;
+    padding-left: 20px;
+    max-width: 74ch;
+    color: var(--text);
+  }
+
+  .param-list li { margin: 3px 0; }
+
+  .media-block { margin-bottom: 30px; }
+  .media-block:last-child { margin-bottom: 0; }
+
+  .media-block p { color: var(--text); font-weight: 600; margin: 0 0 10px; }
+
+  .media-block img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--code-bg);
+  }
+
   article {
     border-top: 1px solid var(--border);
     padding: 18px 0 20px;
@@ -228,6 +251,13 @@
     <p class="brand-stat">44 classes, 5 sub-packages</p>
 
     <nav>
+      <div class="group">
+        <p class="group-label">Overview</p>
+        <ul>
+          <li><a href="#cat-about">About This Research</a></li>
+          <li><a href="#cat-media">Media</a></li>
+        </ul>
+      </div>
       <div class="group">
         <p class="group-label">Core Simulation</p>
         <ul>
@@ -320,6 +350,71 @@
         data mining!</p>
       <p>In total, there are 44 classes, 5 sub-packages, 7 categories, and 9 movement models.</p>
     </div>
+
+    <!-- ============================================================ -->
+    <section class="category" id="cat-about">
+      <div class="cat-head"><h2>About This Research</h2></div>
+
+      <p>This research was carried out under the SURE grant for BIO 005, Biocomputation with Bacteria in
+        Microfluidics Networks. We appreciate Professor Nicolau and the entire biological microfluidics group, who
+        believed in us, guided us through the process of developing the software, and collected invaluable
+        experimental data.</p>
+
+      <p>Bacteria can navigate complex microfluidic environments, but experimentally it's difficult to determine
+        why different species navigate differently. Even a mechanistic understanding can be severely limited at
+        predicting the swarm behavior of bacteria at different scales.</p>
+
+      <p>Our model takes a distinct approach, combining a stochastic angle choice with a Boltzmann force wall
+        effect obtained from positional probability maps (i.e. density maps) and forcing a function between the
+        position and its distance from the walls. Similarly, we use experimentally determined velocities. In
+        addition to the fixed parameters for each species derived from experimental behavior, we have set some
+        tunable parameters to modify the movement heuristics of our model.</p>
+
+      <p style="margin-bottom: 6px;">Tunable parameters:</p>
+      <ul class="param-list">
+        <li>directional variability (distributions)</li>
+        <li>directional variability (deviations)</li>
+        <li>directional memory weight</li>
+        <li>angular noise weight</li>
+        <li>wall interaction weight</li>
+      </ul>
+
+      <p>These five parameters were found sufficient to provide quantitative comparison between bacterial species
+        simulations. This was observed after calibration by optimization techniques based on both experimental
+        density maps and vertex-visiting behavior.</p>
+
+      <p>Ultimately, this provides a framework for testing engineered microfluidic geometries before fabrication
+        and for testing bacterial navigation through novel environments. Traffic flow is of particular interest.</p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="category" id="cat-media">
+      <div class="cat-head"><h2>Media</h2></div>
+
+      <div class="media-block">
+        <p>This is a microscope timelapse of bacteria traveling through our PDMS geometry</p>
+        <img src="images/simulation0.gif" alt="Bacterial Microscopy0">
+      </div>
+
+      <div class="media-block">
+        <p>Here are some quick highlights of our program's potential</p>
+        <img src="images/simulation1.gif" alt="Bacterial simulation1">
+      </div>
+
+      <div class="media-block">
+        <p>Our wall force markov chain type Bacteria take in 5 tunable inputs</p>
+        <img src="images/simulation2.gif" alt="Bacterial simulation2">
+      </div>
+
+      <div class="media-block">
+        <p>Our Deterministic Solving Algorithms may act as controls</p>
+        <img src="images/simulation3.gif" alt="Bacterial simulation3">
+      </div>
+
+      <div class="media-block">
+        <p>Our Program is versatile, and will accept custom mazes</p>
+      </div>
+    </section>
 
     <!-- ============================================================ -->
     <section class="category" id="cat-core">
